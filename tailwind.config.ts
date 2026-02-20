@@ -13,12 +13,21 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        mono: ['JetBrains Mono', 'monospace'],
+        display: ['Orbitron', 'monospace'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        "terminal-green": "hsl(var(--terminal-green))",
+        "terminal-cyan": "hsl(var(--terminal-cyan))",
+        "terminal-amber": "hsl(var(--terminal-amber))",
+        "terminal-red": "hsl(var(--terminal-red))",
+        "terminal-purple": "hsl(var(--terminal-purple))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
