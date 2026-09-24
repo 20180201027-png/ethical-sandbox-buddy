@@ -186,6 +186,65 @@
     color: hsl(var(--terminal-purple));
   }
 
+  .stage-marker {
+    width: 1.75rem;
+    height: 1.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 1px solid currentColor;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .stage-marker-green { color: hsl(var(--terminal-green)); background: hsl(var(--terminal-green) / 0.1); }
+  .stage-marker-amber { color: hsl(var(--terminal-amber)); background: hsl(var(--terminal-amber) / 0.1); }
+  .stage-marker-red { color: hsl(var(--terminal-red)); background: hsl(var(--terminal-red) / 0.1); }
+
+  .lesson-command,
+  .lesson-tag {
+    border: 1px solid hsl(var(--terminal-cyan) / 0.25);
+    background: hsl(var(--terminal-cyan) / 0.06);
+    color: hsl(var(--terminal-cyan));
+    border-radius: 3px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+  }
+
+  .lesson-command {
+    padding: 0.25rem 0.45rem;
+    transition: all 0.2s ease;
+  }
+
+  .lesson-command:hover {
+    border-color: hsl(var(--terminal-cyan) / 0.65);
+    background: hsl(var(--terminal-cyan) / 0.13);
+  }
+
+  .lesson-tag { padding: 0.15rem 0.3rem; color: hsl(var(--muted-foreground)); border-color: hsl(var(--border)); background: hsl(var(--muted) / 0.35); }
+
+  .lesson-row {
+    display: block;
+    width: 100%;
+    padding: 0.65rem;
+    border: 1px solid hsl(var(--border) / 0.7);
+    border-radius: 4px;
+    transition: all 0.2s ease;
+  }
+
+  .lesson-row:hover {
+    border-color: hsl(var(--terminal-green) / 0.5);
+    background: hsl(var(--terminal-green) / 0.06);
+  }
+
+  .stage-card-green { border-color: hsl(var(--terminal-green) / 0.22); }
+  .stage-card-amber { border-color: hsl(var(--terminal-amber) / 0.22); }
+  .stage-card-red { border-color: hsl(var(--terminal-red) / 0.22); }
+  .stage-card-active { box-shadow: 0 0 20px hsl(var(--terminal-green) / 0.12), inset 0 0 22px hsl(var(--terminal-green) / 0.04); }
+
   .sidebar-item {
     transition: all 0.2s ease;
     cursor: pointer;
