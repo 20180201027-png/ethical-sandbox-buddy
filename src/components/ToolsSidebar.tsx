@@ -1,9 +1,12 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronRight, Terminal, Shield } from 'lucide-react';
+import { ChevronDown, ChevronRight, Terminal, Shield, GraduationCap } from 'lucide-react';
 import { TOOL_CATEGORIES } from '@/lib/toolOutputs';
+import { LEARNING_STAGES, LearningStageId } from '@/lib/learningData';
 
 interface ToolsSidebarProps {
   onCommandSelect: (cmd: string) => void;
+  activeStage: LearningStageId;
+  onStageChange: (stage: LearningStageId) => void;
 }
 
 const colorMap: Record<string, string> = {
@@ -14,7 +17,7 @@ const colorMap: Record<string, string> = {
   green: 'tool-badge',
 };
 
-const ToolsSidebar = ({ onCommandSelect }: ToolsSidebarProps) => {
+const ToolsSidebar = ({ onCommandSelect, activeStage, onStageChange }: ToolsSidebarProps) => {
   const [expanded, setExpanded] = useState<string[]>(['Reconnaissance']);
 
   const toggle = (name: string) => {
@@ -31,6 +34,32 @@ const ToolsSidebar = ({ onCommandSelect }: ToolsSidebarProps) => {
         <span className="text-xs font-bold glow-text-green tracking-wider uppercase">
           Tool Arsenal
         </span>
+      </div>
+
+      <div className="p-3 border-b border-border/50">
+        <div className="flex items-center gap-2 mb-2">
+          <GraduationCap size={13} className="glow-text-cyan" />
+          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Learning stage</span>
+        </div>
+        <div className="grid grid-cols-3 gap-1">
+          {LEARNING_STAGES.map(stage => (
+            <button
+              key={stage.id}
+              onClick={() => onStageChange(stage.id)}
+              className={`py-1.5 text-[9px] font-bold uppercase tracking-wide border rounded transition-colors ${
+                activeStage === stage.id
+                  ? stage.id === 'beginner' ? 'border-primary/60 bg-primary/15 text-primary' : stage.id === 'intermediate' ? 'border-accent/60 bg-accent/15 text-accent' : 'border-destructive/60 bg-destructive/15 text-destructive'
+                  : 'border-border/50 text-muted-foreground hover:text-foreground hover:border-border'
+              }`}
+              title={stage.focus}
+            >
+              {stage.shortLabel}
+            </button>
+          ))}
+        </div>
+        <div className="mt-2 text-[10px] text-muted-foreground">
+          {LEARNING_STAGES.find(stage => stage.id === activeStage)?.label} track · {LEARNING_STAGES.find(stage => stage.id === activeStage)?.lessonCount} lessons
+        </div>
       </div>
 
       {/* Quick help */}

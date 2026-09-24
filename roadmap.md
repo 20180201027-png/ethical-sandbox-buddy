@@ -1,0 +1,4 @@
+- [ ] Add beginner, intermediate, and advanced learning stages with progress framing.
+- [ ] Expand the educational catalogue with command lessons, attack concepts, and defenses.
+- [ ] Connect stage selection to the sidebar, terminal guidance, and roadmap view.
+- [ ] Verify the expanded learning flow and current preview diagnostics.
