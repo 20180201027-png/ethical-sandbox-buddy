@@ -3,6 +3,7 @@ import { Shield, BookOpen, Terminal, Zap, Menu, X, ChevronRight, Lock } from 'lu
 import HackingTerminal from '@/components/HackingTerminal';
 import ToolsSidebar from '@/components/ToolsSidebar';
 import terminalBg from '@/assets/terminal-bg.png';
+import { COMMAND_LESSONS, DEFENDER_TOPICS, getLearningStage, LEARNING_STAGES, LearningStageId } from '@/lib/learningData';
 
 const PHASES = [
   { num: '01', name: 'Recon', color: 'cyan', tools: ['nmap', 'whois', 'dig', 'maltego'] },
@@ -22,6 +23,7 @@ const Index = () => {
   const [terminalInput, setTerminalInput] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [view, setView] = useState<'terminal' | 'roadmap'>('terminal');
+  const [activeStage, setActiveStage] = useState<LearningStageId>('beginner');
 
   const handleCommandSelect = (cmd: string) => {
     setTerminalInput(cmd);
@@ -96,19 +98,28 @@ const Index = () => {
         {/* Sidebar */}
         {sidebarOpen && (
           <div className="w-52 shrink-0 border-r border-border/50 bg-card/20 overflow-hidden">
-            <ToolsSidebar onCommandSelect={handleCommandSelect} />
+            <ToolsSidebar
+              onCommandSelect={handleCommandSelect}
+              activeStage={activeStage}
+              onStageChange={setActiveStage}
+            />
           </div>
         )}
 
         {/* Content area */}
         <div className="flex-1 min-w-0 p-3 overflow-hidden">
           {view === 'terminal' ? (
-            <HackingTerminalWrapper
+              <HackingTerminalWrapper
               initialInput={terminalInput}
               onInputConsumed={() => setTerminalInput('')}
+               activeStage={activeStage}
             />
           ) : (
-            <RoadmapView onToolSelect={handleCommandSelect} />
+             <RoadmapView
+               onToolSelect={handleCommandSelect}
+               activeStage={activeStage}
+               onStageChange={setActiveStage}
+             />
           )}
         </div>
       </div>
@@ -118,20 +129,34 @@ const Index = () => {
 
 // Wrapper to inject commands from sidebar
 function HackingTerminalWrapper({
-  initialInput: _initialInput,
-  onInputConsumed: _onInputConsumed,
+  initialInput,
+  onInputConsumed,
+  activeStage,
 }: {
   initialInput: string;
   onInputConsumed: () => void;
+  activeStage: LearningStageId;
 }) {
   return (
     <div className="h-full">
-      <HackingTerminal />
+      <HackingTerminal
+        initialInput={initialInput}
+        onInputConsumed={onInputConsumed}
+        activeStage={activeStage}
+      />
     </div>
   );
 }
 
-function RoadmapView({ onToolSelect }: { onToolSelect: (cmd: string) => void }) {
+function RoadmapView({
+  onToolSelect,
+  activeStage,
+  onStageChange,
+}: {
+  onToolSelect: (cmd: string) => void;
+  activeStage: LearningStageId;
+  onStageChange: (stage: LearningStageId) => void;
+}) {
   const resources = [
     { name: 'TryHackMe', desc: 'Beginner-friendly CTF platform with guided labs', url: '#' },
     { name: 'HackTheBox', desc: 'Advanced real-world machine challenges', url: '#' },
@@ -166,9 +191,52 @@ function RoadmapView({ onToolSelect }: { onToolSelect: (cmd: string) => void }) 
             Ethical Hacking Mastery Path
           </h1>
           <p className="text-xs text-muted-foreground max-w-lg">
-            Follow this structured path from zero to professional penetration tester.
-            Each phase builds on the previous one.
+            Learn what a command changes, how to read the evidence, and how defenders close the gap.
+            Every result is simulated for authorized lab practice.
           </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        {LEARNING_STAGES.map(stage => (
+          <button
+            key={stage.id}
+            onClick={() => onStageChange(stage.id)}
+            className={`text-left terminal-window p-4 transition-all stage-card-${stage.color} ${activeStage === stage.id ? 'stage-card-active' : 'opacity-70 hover:opacity-100'}`}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <span className={`stage-marker stage-marker-${stage.color}`}>{stage.shortLabel}</span>
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{stage.lessonCount} lessons</span>
+            </div>
+            <div className="text-sm font-bold text-foreground">{stage.label}</div>
+            <div className="text-xs text-muted-foreground mt-1">{stage.promise}</div>
+            <div className="text-[10px] text-muted-foreground mt-3 leading-relaxed">{stage.focus}</div>
+            <div className="mt-3 flex flex-wrap gap-1">
+              {stage.topics.map(topic => <span key={topic} className="lesson-tag">{topic}</span>)}
+            </div>
+          </button>
+        ))}
+      </div>
+
+      <div className="terminal-window p-4">
+        <div className="flex items-center justify-between gap-3 mb-3">
+          <div>
+            <div className="text-xs glow-text-cyan font-bold uppercase tracking-wider">Command lesson library</div>
+            <div className="text-[10px] text-muted-foreground mt-1">Select a command to load it into the simulator.</div>
+          </div>
+          <span className="tool-badge">{getLearningStage(activeStage).label} focus</span>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+          {COMMAND_LESSONS.filter(lesson => lesson.stage === activeStage).map(lesson => (
+            <button
+              key={lesson.command}
+              onClick={() => onToolSelect(lesson.command)}
+              className="lesson-row text-left"
+            >
+              <code className="text-[10px] glow-text-green break-all">{lesson.command}</code>
+              <span className="text-[10px] text-muted-foreground mt-1 block">{lesson.concept} · {lesson.outcome}</span>
+            </button>
+          ))}
         </div>
       </div>
 
@@ -218,6 +286,18 @@ function RoadmapView({ onToolSelect }: { onToolSelect: (cmd: string) => void }) 
               <p>✓ Participate in <strong className="text-foreground">Bug Bounty programs</strong> for legal real-world practice</p>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="terminal-window p-4">
+        <div className="text-xs glow-text-green font-bold uppercase tracking-wider mb-3">Defender playbook</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {DEFENDER_TOPICS.map(topic => (
+            <div key={topic.title} className="border-l-2 border-primary/30 pl-3">
+              <div className="text-xs text-foreground font-semibold">{topic.title}</div>
+              <div className="text-[10px] text-muted-foreground leading-relaxed mt-1">{topic.detail}</div>
+            </div>
+          ))}
         </div>
       </div>
 
