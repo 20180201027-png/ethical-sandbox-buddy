@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Send, RotateCcw, ChevronRight, BookOpen, AlertTriangle, Lightbulb, ArrowRight } from 'lucide-react';
 import { simulateCommand, SimulationResult } from '@/lib/toolOutputs';
+import { getLearningStage, LearningStageId, COMMAND_LESSONS } from '@/lib/learningData';
 
 interface TerminalEntry {
   id: string;
@@ -38,7 +39,13 @@ const WELCOME_TEXT = `╔══════════════════�
 ⚠  Remember: Only test systems you have written permission to test.
    Practice on HackTheBox, TryHackMe, or your own lab environment.`;
 
-export default function HackingTerminal() {
+interface HackingTerminalProps {
+  initialInput?: string;
+  onInputConsumed?: () => void;
+  activeStage?: LearningStageId;
+}
+
+export default function HackingTerminal({ initialInput = '', onInputConsumed, activeStage = 'beginner' }: HackingTerminalProps) {
   const [entries, setEntries] = useState<TerminalEntry[]>([
     {
       id: '0',
@@ -57,6 +64,14 @@ export default function HackingTerminal() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const outputRef = useRef<HTMLDivElement>(null);
+  const stage = getLearningStage(activeStage);
+
+  useEffect(() => {
+    if (!initialInput) return;
+    setInput(initialInput);
+    onInputConsumed?.();
+    inputRef.current?.focus();
+  }, [initialInput, onInputConsumed]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -127,9 +142,34 @@ export default function HackingTerminal() {
   };
 
   const currentResult = selectedEntry?.result;
+  const matchedLesson = currentResult
+    ? COMMAND_LESSONS.find(lesson => selectedEntry?.content.startsWith(lesson.command.split(' ')[0]))
+    : undefined;
 
   return (
     <div className="flex flex-col h-full gap-3">
+      <div className="terminal-window shrink-0 px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-3">
+          <div className={`stage-marker stage-marker-${stage.color}`}>{stage.shortLabel}</div>
+          <div>
+            <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{stage.label} track</div>
+            <div className="text-xs text-foreground font-semibold">{stage.promise}</div>
+            <div className="text-[10px] text-muted-foreground mt-0.5">{stage.focus}</div>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-1.5 sm:justify-end">
+          {stage.commands.map(command => (
+            <button
+              key={command}
+              onClick={() => { setInput(command); inputRef.current?.focus(); }}
+              className="lesson-command"
+              title="Load this lesson command"
+            >
+              {command.split(' ')[0]}
+            </button>
+          ))}
+        </div>
+      </div>
       {/* Terminal window */}
       <div className="terminal-window flex-1 flex flex-col min-h-0 scanline">
         {/* Terminal header bar */}
@@ -337,6 +377,12 @@ export default function HackingTerminal() {
                       </span>
                     </div>
                   ))}
+                  {matchedLesson && (
+                    <>
+                      <div className="mt-3 pt-3 border-t border-border/40 text-[10px] uppercase tracking-wider glow-text-amber font-bold">Defender lens · {matchedLesson.concept}</div>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{matchedLesson.defense}</p>
+                    </>
+                  )}
                 </div>
               </div>
             )}
